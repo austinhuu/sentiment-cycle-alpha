@@ -1,0 +1,9 @@
+pandas>=2.1
+numpy>=1.26
+PyYAML>=6.0
+matplotlib>=3.8
+tushare>=1.4.0
+akshare>=1.18.64
+openai>=1.68.0
+pytest>=8.0
+baostock

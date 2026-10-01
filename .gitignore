@@ -1,0 +1,38 @@
+# Python/cache
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.egg-info/
+.DS_Store
+.vscode/
+.idea/
+
+# Local credentials and environment
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.*
+secrets.*
+
+# Market data, licensed data, cached LLM/news text and all generated results
+data/
+outputs/
+sample_outputs/
+artifacts/
+logs/
+*.log
+*.parquet
+*.db
+*.sqlite
+
+# Raw research archives
+*.zip
+*.7z
+*.tar
+*.gz
+
+sentiment_cycle_alpha/

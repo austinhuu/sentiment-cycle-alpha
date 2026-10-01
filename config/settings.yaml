@@ -1,0 +1,873 @@
+project:
+  name: multi_agent_trading_a_share_sentiment_cycle_v7_6
+  random_seed: 42
+  version: '7.6'
+data:
+  source: tushare_daily
+  freq: daily
+  start_date: '20200101'
+  end_date: '20251231'
+  csv_path: data/raw/custom_market_data.csv
+  request_pause_seconds: 1.5
+  max_retries: 4
+  rate_limit_wait_seconds: 65
+  trading_pool:
+  - 000001.SZ
+  - 000002.SZ
+  - 000063.SZ
+  - 000333.SZ
+  - 000651.SZ
+  - 000725.SZ
+  - 000858.SZ
+  - 002230.SZ
+  - 002415.SZ
+  - 002594.SZ
+  - 300014.SZ
+  - 300015.SZ
+  - 300059.SZ
+  - 300122.SZ
+  - 300274.SZ
+  - 300308.SZ
+  - 300750.SZ
+  - 600000.SH
+  - 600009.SH
+  - 600028.SH
+  - 600030.SH
+  - 600036.SH
+  - 600050.SH
+  - 600276.SH
+  - 600309.SH
+  - 600519.SH
+  - 600690.SH
+  - 601318.SH
+  - 601398.SH
+  - 601888.SH
+  - 603259.SH
+  - 688981.SH
+  sentiment_pool:
+  - 000001.SZ
+  - 000002.SZ
+  - 000063.SZ
+  - 000333.SZ
+  - 000651.SZ
+  - 000725.SZ
+  - 000858.SZ
+  - 002230.SZ
+  - 002415.SZ
+  - 002594.SZ
+  - 300014.SZ
+  - 300015.SZ
+  - 300059.SZ
+  - 300122.SZ
+  - 300274.SZ
+  - 300308.SZ
+  - 300750.SZ
+  - 600000.SH
+  - 600009.SH
+  - 600028.SH
+  - 600030.SH
+  - 600036.SH
+  - 600050.SH
+  - 600276.SH
+  - 600309.SH
+  - 600519.SH
+  - 600690.SH
+  - 601318.SH
+  - 601398.SH
+  - 601888.SH
+  - 603259.SH
+  - 688981.SH
+features:
+  min_history_bars: 140
+  listing_warmup_bars: 20
+  ma_short: 5
+  ma_mid: 10
+  ma_long: 20
+  rsi_window: 14
+  atr_window: 14
+  volatility_window: 20
+  volume_window: 20
+  breakout_window: 20
+  momentum_window: 10
+  drawdown_window: 60
+  zscore_window: 120
+  zscore_min_periods: 40
+  risk_percentile_window: 252
+  risk_percentile_min_periods: 60
+  regime_trend_fast_window: 20
+  regime_trend_slow_window: 60
+  regime_momentum_window: 20
+  regime_breadth_window: 10
+  regime_volatility_window: 20
+  regime_drawdown_window: 120
+  regime_percentile_window: 252
+  regime_percentile_min_periods: 60
+  future_horizons:
+  - 1
+  - 5
+  - 20
+market_regime:
+  enabled: true
+  use_for_trading: false
+  position_adjustment_strength: 0.1
+  high_volatility_percentile: 0.8
+  high_volatility_zscore: 1.0
+  high_volatility_drawdown: -0.08
+  bull_trend_gap_min: 0.015
+  bull_momentum_min: 0.02
+  bull_breadth_min: 0.55
+  bear_trend_gap_max: -0.015
+  bear_momentum_max: -0.02
+  bear_breadth_max: 0.45
+  range_trend_abs_max: 0.01
+  range_momentum_abs_max: 0.025
+  range_breadth_min: 0.45
+  range_breadth_max: 0.55
+  range_volatility_percentile_max: 0.75
+  minimum_regime_confidence: 0.35
+  lightweight_position_multipliers:
+    bull_trend: 1.03
+    bear_trend: 0.92
+    high_volatility: 0.95
+    range_bound: 0.96
+    neutral: 1.0
+alternative_data:
+  fundamental_enabled: true
+  fundamental_csv: data/raw/fundamental_scores.csv
+  fundamental_max_age_days: 220
+  fundamental_neutral_when_missing: true
+  fundamental_min_abs_score: 0.03
+  news_enabled: true
+  news_daily_csv: data/raw/news_sentiment_daily.csv
+  news_events_csv: data/raw/text_events.csv
+  news_max_age_days: 30
+  news_half_life_days: 7.0
+  news_neutral_when_missing: true
+  news_neutral_epsilon: 0.03
+  news_require_material_event: true
+  fundamental_annual_max_age_days: 550
+  fundamental_quarterly_max_age_days: 220
+  fundamental_annual_weight: 0.45
+  fundamental_quarterly_weight: 0.55
+  fundamental_bundle_min_confidence: 0.2
+fundamental_agent:
+  score_weight: 0.08
+  max_score_adjustment: 0.06
+  confidence_weight: 0.08
+  minimum_confidence_to_influence: 0.4
+  minimum_abs_score_to_influence: 0.03
+news_agent:
+  score_weight: 0.06
+  max_score_adjustment: 0.05
+  confidence_weight: 0.06
+  minimum_confidence_to_influence: 0.4
+  minimum_abs_score_to_influence: 0.03
+  position_multiplier_min: 0.92
+  position_multiplier_max: 1.05
+agents:
+  buy_threshold: 0.25
+  sell_threshold: -0.15
+  minimum_confidence: 0.72
+  max_position_per_symbol: 0.15
+  allow_short: false
+  technical_confidence_weight: 0.8
+  sentiment_confidence_weight: 0.06
+  sentiment_min_multiplier: 0.72
+  sentiment_max_multiplier: 1.04
+  debate_revision_weight: 0.0
+  debate_disagreement_penalty: 0.0
+  llm_influence_enabled: false
+  llm_max_confidence_adjustment: 0.03
+risk:
+  enable_veto_new_entry: false
+  enable_force_exit: false
+  veto_component_percentile: 0.9
+  veto_score_threshold: 0.78
+  force_exit_component_percentile: 0.99
+  force_exit_score_threshold: 0.9
+  force_exit_drawdown: -0.15
+  minimum_position_multiplier: 0.6
+  position_penalty_start: 0.55
+backtest:
+  initial_capital: 1000000
+  buy_commission_rate: 0.0001
+  sell_commission_rate: 0.0001
+  stamp_duty_rate: 0.0005
+  slippage_rate: 0.0005
+  annualization_bars: 252
+  max_gross_exposure: 1.0
+  execution_mode: next_open
+  minimum_holding_days: 3
+  cooldown_days: 2
+  rebalance_band: 0.02
+  position_smoothing: 0.5
+  hard_exit_score: -0.45
+  use_regime_holding_rules: false
+  drawdown_control:
+    enabled: true
+    warning_drawdown: -0.1
+    warning_multiplier: 0.9
+    defensive_drawdown: -0.15
+    defensive_multiplier: 0.75
+    severe_drawdown: -0.22
+    severe_multiplier: 0.5
+    recovery_buffer: 0.01
+fundamental_download:
+  provider: akshare
+  output_csv: data/raw/fundamental_scores.csv
+  raw_output_csv: data/raw/fundamental_raw.csv
+  request_pause_seconds: 1.0
+  max_retries: 3
+  availability_lag_days: 1
+  explicit_date_grace_days: 60
+  rolling_history_quarters: 8
+  min_history_quarters: 3
+text_download:
+  provider: akshare
+  events_output_csv: data/raw/text_events.csv
+  daily_output_csv: data/raw/news_sentiment_daily.csv
+  request_pause_seconds: 1.5
+  max_retries: 3
+  availability_lag_days: 1
+  include_recent_news: true
+  recent_news_max_age_days: 180
+  include_event_content: true
+adaptive_fusion:
+  enabled: true
+  target_horizon: 5
+  first_test_year: 2023
+  training_window_years: 3
+  expanding_window: false
+  minimum_training_rows: 1000
+  minimum_training_dates: 180
+  ridge_alpha: 12.0
+  target_winsor_quantile: 0.01
+  prediction_clip: 0.08
+  score_temperature: 1.75
+  confidence_floor: 0.1
+  confidence_ceiling: 0.95
+  use_cross_sectional_excess_target: true
+  include_regime_interactions: false
+  include_event_interactions: false
+  feature_set: full_no_regime
+  output_dir: outputs/v4_6/adaptive_fusion
+  feature_sets:
+    technical_only:
+    - technical_score
+    - technical_confidence
+    - momentum_z
+    - ma_gap_short_long_z
+    - return_5_z
+    technical_sentiment:
+    - technical_score
+    - technical_confidence
+    - sentiment_score
+    - sentiment_confidence
+    - momentum_z
+    - ma_gap_short_long_z
+    - return_5_z
+    technical_fundamental:
+    - technical_score
+    - technical_confidence
+    - fundamental_score
+    - fundamental_confidence
+    - fundamental_growth_acceleration
+    - fundamental_quality_change
+    - momentum_z
+    - ma_gap_short_long_z
+    - annual_fundamental_score
+    - annual_fundamental_confidence
+    - annual_fundamental_quality_change
+    - annual_fundamental_cash_quality
+    - quarterly_fundamental_score
+    - quarterly_fundamental_confidence
+    - quarterly_fundamental_growth_acceleration
+    - quarterly_fundamental_quality_change
+    technical_news:
+    - technical_score
+    - technical_confidence
+    - news_score
+    - news_confidence
+    - news_event_severity
+    - news_material_event_count
+    - momentum_z
+    - ma_gap_short_long_z
+    full_no_regime:
+    - technical_score
+    - technical_confidence
+    - sentiment_score
+    - sentiment_confidence
+    - fundamental_score
+    - fundamental_confidence
+    - fundamental_growth_acceleration
+    - fundamental_quality_change
+    - news_score
+    - news_confidence
+    - news_event_severity
+    - news_material_event_count
+    - risk_score
+    - market_stress_percentile
+    - momentum_z
+    - ma_gap_short_long_z
+    - return_5_z
+    - volume_ratio_z
+    - annual_fundamental_score
+    - annual_fundamental_confidence
+    - annual_fundamental_quality_change
+    - annual_fundamental_cash_quality
+    - quarterly_fundamental_score
+    - quarterly_fundamental_confidence
+    - quarterly_fundamental_growth_acceleration
+    - quarterly_fundamental_quality_change
+    full_v4:
+    - technical_score
+    - technical_confidence
+    - sentiment_score
+    - sentiment_confidence
+    - fundamental_score
+    - fundamental_confidence
+    - fundamental_growth_acceleration
+    - fundamental_quality_change
+    - fundamental_cash_quality
+    - news_score
+    - news_confidence
+    - news_event_severity
+    - news_material_event_count
+    - risk_score
+    - market_stress_percentile
+    - momentum_z
+    - ma_gap_short_long_z
+    - return_5_z
+    - volume_ratio_z
+    - volatility_z
+    - atr_pct_z
+    - annual_fundamental_score
+    - annual_fundamental_confidence
+    - annual_fundamental_quality_change
+    - annual_fundamental_cash_quality
+    - quarterly_fundamental_score
+    - quarterly_fundamental_confidence
+    - quarterly_fundamental_growth_acceleration
+    - quarterly_fundamental_quality_change
+  purge_days: 5
+  embargo_days: 1
+  nested_alpha_selection: true
+  ridge_alpha_grid:
+  - 12.0
+  - 24.0
+  - 48.0
+  - 96.0
+  - 192.0
+  validation_fraction: 0.2
+  minimum_validation_dates: 60
+  maximum_selected_features: 18
+  minimum_abs_univariate_ic: 0.005
+  minimum_nonzero_feature_coverage: 0.02
+  minimum_news_active_coverage: 0.03
+  minimum_fundamental_active_coverage: 0.3
+  mandatory_features:
+  - technical_score
+  - technical_confidence
+  - sentiment_score
+  - sentiment_confidence
+  - risk_score
+  - market_stress_percentile
+  minimum_validation_ic: 0.01
+  fallback_enabled: true
+  fallback_feature_set: technical_sentiment
+  fallback_minimum_validation_ic: 0.0
+  confidence_calibration_quantiles: 101
+  confidence_quality_target_ic: 0.06
+  confidence_quality_floor: 0.2
+event_regime:
+  enabled: false
+  interaction_strength: 0.2
+  category_multipliers:
+    earnings_positive:
+      bull_trend: 1.05
+      bear_trend: 0.9
+      high_volatility: 0.95
+      range_bound: 1.0
+      neutral: 1.0
+    earnings_negative:
+      bull_trend: 0.95
+      bear_trend: 1.1
+      high_volatility: 1.1
+      range_bound: 1.0
+      neutral: 1.0
+    buyback:
+      bull_trend: 1.05
+      bear_trend: 0.95
+      high_volatility: 0.95
+      range_bound: 1.05
+      neutral: 1.0
+    shareholder_reduction:
+      bull_trend: 0.95
+      bear_trend: 1.1
+      high_volatility: 1.1
+      range_bound: 1.0
+      neutral: 1.0
+    regulatory_risk:
+      bull_trend: 1.0
+      bear_trend: 1.15
+      high_volatility: 1.15
+      range_bound: 1.05
+      neutral: 1.05
+portfolio:
+  enabled: true
+  output_dir: outputs/v4_6/portfolio
+  top_k: 8
+  minimum_adaptive_score: 0.1
+  minimum_adaptive_confidence: 0.2
+  minimum_predicted_excess_return: 0.0
+  max_weight_per_symbol: 0.1
+  max_weight_per_sector: 0.28
+  use_sector_constraint: true
+  security_master_csv: data/raw/security_master.csv
+  max_gross_exposure: 0.9
+  minimum_weight: 0.01
+  rebalance_every_n_dates: 5
+  rebalance_band: 0.01
+  position_smoothing: 0.65
+  max_turnover_per_rebalance: 0.5
+  weighting_method: score_inverse_risk
+  inverse_risk_strength: 0.65
+  cash_buffer: 0.1
+  regime_gross_exposure:
+    bull_trend: 0.9
+    neutral: 0.72
+    high_volatility: 0.55
+    range_bound: 0.5
+    bear_trend: 0.25
+  strict_top_k: false
+  max_active_positions: 12
+  exit_decay: 0.45
+  minimum_exit_weight: 0.005
+  equal_weight_blend: 0.35
+  turnover_tolerance: 1.0e-10
+  turnover_projection_max_iterations: 8
+llm_calibration:
+  enabled: true
+  llm_results_csv: outputs/llm_debate/llm_debate_results.csv
+  output_dir: outputs/v4_6/llm_calibration
+  target_horizon: 5
+  minimum_samples: 100
+  minimum_directional_accuracy: 0.53
+  minimum_absolute_ic: 0.03
+  maximum_score_adjustment: 0.03
+  maximum_confidence_adjustment: 0.03
+  confidence_bucket_count: 5
+  default_influence_enabled: false
+drift_monitoring:
+  enabled: true
+  output_dir: outputs/v4_6/drift
+  baseline_end_year: 2022
+  recent_window_days: 252
+  psi_bins: 10
+  psi_warning: 0.1
+  psi_critical: 0.25
+  ic_window_days: 120
+  ic_warning_drop: 0.05
+  coefficient_change_warning: 0.5
+  regime_js_warning: 0.1
+  minimum_feature_coverage: 0.7
+  minimum_active_coverage: 0.03
+  minimum_abs_coefficient: 0.001
+  minimum_absolute_coefficient_change: 0.002
+  monitor_raw_confidence: false
+llm_debate:
+  enabled: true
+  selection_mode: high_conflict
+  max_requests: 5
+  minimum_disagreement: 0.5
+  latest_n_dates: 20
+  cache_path: data/cache/llm_debate_cache.jsonl
+  output_dir: outputs/llm_debate
+  reasoning_effort: low
+  max_output_tokens: 1800
+  request_pause_seconds: 0.5
+  max_retries: 3
+  store_responses: false
+walk_forward:
+  enabled: true
+  first_test_year: 2023
+  objective: sharpe_calmar_turnover
+  parameter_grid:
+    buy_threshold:
+    - 0.22
+    - 0.26
+    sell_threshold:
+    - -0.12
+    - -0.18
+    minimum_confidence:
+    - 0.7
+    - 0.72
+    minimum_holding_days:
+    - 3
+    - 5
+robustness:
+  output_dir: outputs/v4_6/robustness
+  run_symbol_exclusions: true
+  run_sector_exclusions: true
+v5_production:
+  enabled: true
+  output_dir: outputs/v5/production
+  model_health:
+    target_horizon: 5
+    rolling_ic_dates: 120
+    minimum_ic_observations: 40
+    state_minimum_days: 20
+    technical_weight: 0.88
+    sentiment_weight: 0.12
+    fallback_prediction_scale: 0.025
+    healthy_validation_ic: 0.025
+    cautious_validation_ic: 0.01
+    fallback_validation_ic: 0.0
+    rolling_ic_cautious: -0.005
+    rolling_ic_fallback: -0.015
+    rolling_ic_defensive: -0.03
+    relative_ic_fallback: -0.01
+    health_score_cautious: 0.55
+    health_score_fallback: 0.35
+    health_score_defensive: 0.2
+    adaptive_weight_by_state:
+      healthy: 1.0
+      cautious: 0.55
+      fallback: 0.0
+      defensive: 0.0
+    confidence_multiplier_by_state:
+      healthy: 1.0
+      cautious: 0.9
+      fallback: 0.82
+      defensive: 0.65
+  dynamic_risk_budget:
+    enabled: true
+    target_annual_volatility: 0.12
+    volatility_window: 20
+    minimum_volatility_observations: 10
+    annualization_bars: 252
+    volatility_multiplier_min: 0.6
+    volatility_multiplier_max: 1.1
+    stress_strength: 0.25
+    stress_multiplier_min: 0.7
+    health_multipliers:
+      healthy: 1.0
+      cautious: 0.92
+      fallback: 0.82
+      defensive: 0.65
+    regime_multipliers:
+      bull_trend: 1.0
+      neutral: 0.98
+      range_bound: 0.9
+      high_volatility: 0.82
+      bear_trend: 0.7
+    breadth_minimum: 4
+    breadth_penalty: 0.9
+    minimum_multiplier: 0.4
+    maximum_multiplier: 1.0
+    recovery_smoothing: 0.2
+    maximum_turnover: 0.5
+    turnover_tolerance: 1.0e-10
+    component_weights:
+      volatility: 0.35
+      stress: 0.2
+      health: 0.3
+      regime: 0.15
+v5_bootstrap:
+  enabled: true
+  output_dir: outputs/v5/bootstrap
+  simulations: 2000
+  method: stationary
+  block_length: 20
+  confidence_level: 0.95
+  annualization_bars: 252
+  random_seed: 42
+  drawdown_threshold: -0.25
+v5_monte_carlo:
+  enabled: true
+  output_dir: outputs/v5/monte_carlo
+  simulations: 2000
+  block_length: 20
+  annualization_bars: 252
+  random_seed: 43
+  cost_multiplier_low: 1.0
+  cost_multiplier_mode: 1.5
+  cost_multiplier_high: 3.0
+  shock_events_per_year: 1.0
+  shock_magnitude_min: 0.02
+  shock_magnitude_max: 0.06
+  model_failure_probability_per_year: 0.35
+  model_failure_duration_days: 20
+  model_failure_daily_penalty: 0.0008
+  drawdown_threshold: -0.3
+v5_sensitivity:
+  enabled: true
+  output_dir: outputs/v5/sensitivity
+  parameters:
+    portfolio.top_k:
+    - 6
+    - 8
+    - 10
+    portfolio.rebalance_every_n_dates:
+    - 3
+    - 5
+    - 10
+    portfolio.max_turnover_per_rebalance:
+    - 0.3
+    - 0.5
+    - 0.7
+    v5_production.dynamic_risk_budget.target_annual_volatility:
+    - 0.1
+    - 0.12
+    - 0.15
+  cost_multipliers:
+  - 1.0
+  - 1.5
+  - 2.0
+  - 3.0
+  minimum_positive_return_share: 0.7
+v5_pool_stability:
+  enabled: true
+  output_dir: outputs/v5/pool_stability
+  liquidity_pool_sizes:
+  - 16
+  - 24
+  sector_balanced_pool_sizes:
+  - 16
+  - 24
+  include_hash_halves: true
+  minimum_symbols: 12
+  liquidity_column: amount
+v5_health_monitor:
+  enabled: true
+  output_dir: outputs/v5/health
+  recent_window_dates: 120
+  warning_fallback_share: 0.25
+  critical_fallback_share: 0.5
+  warning_defensive_share: 0.1
+  critical_defensive_share: 0.25
+  warning_recent_ic: -0.005
+  critical_recent_ic: -0.02
+  warning_drawdown: -0.15
+  critical_drawdown: -0.22
+  warning_risk_multiplier: 0.65
+  critical_risk_multiplier: 0.45
+v5_acceptance:
+  enabled: true
+  output_dir: outputs/v5/acceptance
+  minimum_sharpe: 0.6
+  maximum_drawdown_floor: -0.22
+  minimum_bootstrap_positive_probability: 0.7
+  minimum_bootstrap_outperformance_probability: 0.55
+  maximum_monte_carlo_drawdown_breach_probability: 0.2
+  minimum_sensitivity_positive_share: 0.7
+  minimum_pool_positive_share: 0.8
+  minimum_pool_sharpe_positive_share: 0.7
+  maximum_defensive_state_share: 0.25
+  minimum_pass_ratio: 0.75
+v6_optimizer:
+  enabled: true
+  output_dir: outputs/v6/optimization
+  decisions_csv: outputs/v5/production/production_decisions.csv
+  prior_allocations_csv: outputs/v5/production/risk_adjusted_target_weights.csv
+  prior_weight_column: target_weight
+  security_master_csv: data/raw/security_master.csv
+  expected_return_column: production_predicted_excess_return
+  score_column: production_score
+  confidence_column: production_confidence
+  return_horizon: 5
+  confidence_power: 1.0
+  expected_return_daily_clip: 0.015
+  health_expected_return_multipliers:
+    healthy: 1.0
+    cautious: 0.8
+    fallback: 0.6
+    defensive: 0.35
+  minimum_score: 0.0
+  minimum_confidence: 0.15
+  candidate_top_k: 12
+  max_active_positions: 12
+  max_weight_per_symbol: 0.1
+  max_weight_per_sector: 0.28
+  max_gross_exposure: 0.9
+  default_gross_exposure: 0.5
+  covariance_lookback_dates: 120
+  covariance_shrinkage: 0.45
+  covariance_variance_floor: 1.0e-06
+  annualization_bars: 252
+  target_annual_volatility: 0.12
+  risk_aversion: 8.0
+  prior_anchor_penalty: 0.2
+  concentration_penalty: 0.05
+  learning_rate: 0.08
+  max_iterations: 300
+  tolerance: 1.0e-08
+  rebalance_every_n_dates: 5
+  max_turnover_per_rebalance: 0.5
+v6_backtest:
+  enabled: true
+  output_dir: outputs/v6/backtest
+v6_execution:
+  enabled: true
+  output_dir: outputs/v6/execution
+  decisions_csv: outputs/v5/production/production_decisions.csv
+  allocations_csv: outputs/v6/optimization/optimized_target_weights.csv
+  holdings_csv: data/live/current_holdings.csv
+  derive_holdings_from_previous_target: true
+  capital: 1000000
+  lot_size: 100
+  minimum_trade_value: 5000
+  price_column: signal_open
+  block_limit_up_buys: true
+  block_limit_down_sells: true
+  buy_commission_rate: 0.0001
+  sell_commission_rate: 0.0001
+  stamp_duty_rate: 0.0005
+  slippage_rate: 0.0005
+v6_production:
+  enabled: true
+  mode: paper_research
+  output_dir: outputs/v6/production_snapshot
+  minimum_optimizer_success_share: 0.95
+  manifest_paths:
+  - config/settings.yaml
+  - outputs/v5/acceptance/v5_acceptance_summary.json
+  - outputs/v6/optimization/optimized_target_weights.csv
+  - outputs/v6/optimization/optimizer_summary.json
+  - outputs/v6/backtest/performance_metrics.json
+  - outputs/v6/execution/latest_order_plan.csv
+  - outputs/v6/acceptance/v6_acceptance_summary.json
+v6_acceptance:
+  enabled: true
+  output_dir: outputs/v6/acceptance
+  minimum_sharpe: 0.75
+  maximum_drawdown_floor: -0.18
+  minimum_sharpe_delta_vs_v5: -0.05
+  minimum_drawdown_delta_vs_v5: -0.02
+  minimum_optimizer_success_share: 0.95
+  minimum_effective_positions: 5.0
+  maximum_turnover: 0.5
+  maximum_symbol_weight: 0.1
+  maximum_sector_weight: 0.28
+  maximum_ex_ante_volatility: 0.14
+  minimum_pass_ratio: 0.8
+v7:
+  focus_symbol: 688981.SH
+  alpha_weights:
+    v6: 0.38
+    momentum: 0.24
+    sector: 0.2
+    cycle: 0.13
+    event: 0.05
+  cycle:
+    z_window: 120
+    z_min_periods: 40
+    momentum_lag: 3
+    strong_up_threshold: 0.07
+    strong_down_threshold: -0.07
+    position_multipliers:
+      ICE_POINT: 0.25
+      REPAIR: 0.65
+      FERMENTATION: 1.0
+      CLIMAX: 0.85
+      DIVERGENCE: 0.55
+      EBB: 0.3
+  sector_linkage:
+    min_direct_peers: 2
+    corr_window: 20
+    z_window: 120
+    z_min_periods: 40
+    theme_baskets:
+      688981.SH:
+      - 000063.SZ
+      - 000725.SZ
+      - 002230.SZ
+      - 002415.SZ
+      - 300308.SZ
+      000063.SZ:
+      - 688981.SH
+      - 000725.SZ
+      - 002230.SZ
+      - 002415.SZ
+      - 300308.SZ
+      000725.SZ:
+      - 688981.SH
+      - 000063.SZ
+      - 002230.SZ
+      - 002415.SZ
+      - 300308.SZ
+      002230.SZ:
+      - 688981.SH
+      - 000063.SZ
+      - 000725.SZ
+      - 002415.SZ
+      - 300308.SZ
+      002415.SZ:
+      - 688981.SH
+      - 000063.SZ
+      - 000725.SZ
+      - 002230.SZ
+      - 300308.SZ
+      300308.SZ:
+      - 688981.SH
+      - 000063.SZ
+      - 000725.SZ
+      - 002230.SZ
+      - 002415.SZ
+  backtest:
+    top_k: 8
+    min_score: 0.05
+    max_gross: 1.0
+    round_trip_turnover_cost: 0.0017
+    rebalance_every: 5
+  veighna:
+    entry_score: 0.1
+    top_k: 8
+  fusion_ridge_lambda: 20.0
+  fusion_purge_dates: 7
+
+v7_7:
+  transition:
+    # Frozen on 2020-2024 development diagnostics. 2025 is not used to select these values.
+    base_exposure: 0.78
+    sensitivity: 0.12
+    min_exposure: 0.55
+    max_exposure: 1.0
+    phase_prior_strength: 30.0
+    transition_prior_strength: 20.0
+    purge_dates: 7
+    min_train_dates: 120
+
+v7_8:
+  focus_symbol: 688981.SH
+  gates:
+    # Real full-A PIT market data must be broad, complete and survivorship-safe.
+    min_market_date_coverage: 0.80
+    min_market_count: 1500
+    accepted_market_quality:
+      - REAL_POINT_IN_TIME
+
+    # Historical sector context is independent from the market gate.
+    min_sector_date_coverage: 0.80
+    accepted_sector_quality:
+      - REAL_HISTORICAL_BOARD_INDEX
+      - REAL_HISTORICAL_SECTOR_ETF_PROXY
+
+    # Recent Eastmoney news is diagnostic today. A future historical event dataset must pass
+    # both date coverage and quality before it can enter the historical backtest.
+    min_event_date_coverage: 0.20
+    accepted_event_quality:
+      - REAL_HISTORICAL_POINT_IN_TIME
+
+    # Current semiconductor membership is never primary historical data.
+    allow_survivorship_biased_market_backtest: false
+    allow_current_membership_sector_backtest: false
+
+  market_sentiment:
+    z_window: 120
+    z_min_periods: 40
+
+  sector:
+    corr_window: 20
+    z_window: 120
+    z_min_periods: 40
